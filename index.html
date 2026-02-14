@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChargeEase • Smart EV Charging Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .map-container { height: 420px; }
+    .slot-available { background: linear-gradient(90deg, #10b981, #34d399); }
+  </style>
+</head>
+<body class="bg-zinc-950 text-white">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 w-full bg-zinc-900/90 backdrop-blur-lg z-50 border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl">⚡</div>
+        <h1 class="text-3xl font-bold tracking-tight">ChargeEase</h1>
+      </div>
+      <div class="hidden md:flex gap-10 text-lg">
+        <a href="#home" class="hover:text-emerald-400 transition">Home</a>
+        <a href="#stations" class="hover:text-emerald-400 transition">Find Stations</a>
+        <a href="#predict" class="hover:text-emerald-400 transition">AI Prediction</a>
+        <a href="#bookings" class="hover:text-emerald-400 transition">My Bookings</a>
+        <a href="#canvas" class="hover:text-emerald-400 transition">Business Model</a>
+        <button onclick="switchView('admin')" class="hover:text-emerald-400 transition">Admin Dashboard</button>
+      </div>
+      <button onclick="showLogin()" class="bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl font-semibold transition">Demo Login</button>
+    </div>
+  </nav>
+
+  <!-- Cover / Hero (matches your cover page) -->
+  <section id="home" class="min-h-screen pt-32 pb-20 bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-zinc-950 flex items-center">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <img src="https://via.placeholder.com/300x100?text=SRI+KRISHNA+COLLEGE+OF+TECHNOLOGY+LOGO" alt="College Logo" class="mx-auto mb-8">
+      <h2 class="text-5xl md:text-7xl font-bold mb-6">ChargeEase</h2>
+      <p class="text-2xl text-emerald-400 mb-4">Smart EV Charging Slot Management Platform</p>
+      <p class="text-xl text-zinc-300 mb-10">Entrepreneurship & Startups • Component – I<br>Team: Hari Hara Sudhan G, Hariprasad S J, Bharathi S<br>Faculty: Ms. Priyadharshini J • EEE Dept. • Submission: 16.02.2026</p>
+      <a href="#stations" class="bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xl px-12 py-6 rounded-3xl inline-block transition">Explore Live Demo</a>
+    </div>
+  </section>
+
+  <!-- Stations -->
+  <section id="stations" class="py-20 bg-zinc-900">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-5xl font-bold text-center mb-4">Live Charging Stations • Coimbatore</h2>
+      <p class="text-center text-zinc-400 mb-12">Real-time slots • Advance booking • OCPP 2.0.1 simulated</p>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="map-container rounded-3xl overflow-hidden border border-zinc-700" id="map"></div>
+        <div class="space-y-6" id="stations-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Prediction Graph -->
+  <section id="predict" class="py-20 bg-zinc-950">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-5xl font-bold text-center mb-8">AI Predictive Availability Engine</h2>
+      <p class="text-center text-zinc-400 mb-12">Ensemble ML (Random Forest + ANN) forecasts slot demand — future expansion feature</p>
+      <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-700">
+        <canvas id="demandChart" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Modal -->
+  <div id="booking-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div class="bg-zinc-900 rounded-3xl p-8 max-w-lg w-full mx-4">
+      <h3 class="text-3xl font-bold mb-6">Book at <span id="modal-station"></span></h3>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm mb-2">Date & Time</label>
+          <input type="datetime-local" id="booking-time" class="w-full bg-zinc-800 p-4 rounded-2xl">
+        </div>
+        <div>
+          <label class="block text-sm mb-2">Charger Type</label>
+          <select id="charger-type" class="w-full bg-zinc-800 p-4 rounded-2xl">
+            <option>DC Fast (120kW)</option>
+            <option>AC Level 2 (22kW)</option>
+            <option>AC Slow (7kW)</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-10 flex gap-4">
+        <button onclick="proceedToPayment()" class="flex-1 bg-emerald-500 text-black font-bold py-5 rounded-2xl">Book & Pay ₹25</button>
+        <button onclick="closeModal()" class="flex-1 border border-zinc-700 py-5 rounded-2xl">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Simulation Modal -->
+  <div id="payment-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div class="bg-zinc-900 rounded-3xl p-10 max-w-md w-full mx-4 text-center">
+      <h3 class="text-3xl font-bold mb-6 text-emerald-400">Secure Payment</h3>
+      <p class="text-xl mb-4">Booking Fee: ₹25</p>
+      <p class="text-zinc-400 mb-8">Simulated Razorpay / UPI Gateway</p>
+      <button onclick="completePayment()" class="bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xl px-12 py-6 rounded-3xl w-full mb-6">Pay Now ₹25</button>
+      <button onclick="cancelPayment()" class="text-zinc-400 underline">Cancel</button>
+    </div>
+  </div>
+
+  <!-- My Bookings -->
+  <section id="bookings" class="py-20 bg-zinc-900">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-4xl font-bold mb-10 text-center">My Bookings & Receipts</h2>
+      <div id="bookings-list" class="space-y-6"></div>
+    </div>
+  </section>
+
+  <!-- Business Model Canvas -->
+  <section id="canvas" class="py-20 bg-zinc-950">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-5xl font-bold text-center mb-12">Business Model Canvas</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-zinc-800 p-8 rounded-3xl"><h3 class="text-emerald-400 text-2xl mb-4">Customer Segments</h3><ul class="space-y-2"><li>EV users</li><li>Fleet operators</li><li>Charging station owners</li><li>Government agencies</li></ul></div>
+        <div class="bg-zinc-800 p-8 rounded-3xl"><h3 class="text-emerald-400 text-2xl mb-4">Value Proposition</h3><ul class="space-y-2"><li>Save time & avoid waiting</li><li>Transparent real-time availability</li><li>Easy digital booking & QR activation</li></ul></div>
+        <div class="bg-zinc-800 p-8 rounded-3xl"><h3 class="text-emerald-400 text-2xl mb-4">Revenue Streams</h3><ul class="space-y-2"><li>₹20–₹30 per booking commission</li><li>Monthly subscriptions</li><li>Station dashboard fees</li><li>In-app ads</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Dashboard -->
+  <section id="admin-view" class="hidden py-20 bg-zinc-950">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-4xl font-bold mb-8 text-center">Admin / Station Operator Dashboard</h2>
+      <div class="bg-zinc-900 rounded-3xl p-8">
+        <table class="w-full text-left border-collapse">
+          <thead><tr class="border-b border-zinc-700"><th class="py-4 px-4">Station</th><th class="py-4 px-4">Bookings Today</th><th class="py-4 px-4">Revenue</th><th class="py-4 px-4">Occupancy</th></tr></thead>
+          <tbody id="admin-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-black py-12 text-center text-zinc-500">
+    <p>ChargeEase Prototype • SRI KRISHNA COLLEGE OF TECHNOLOGY • EEE Dept. • 2026</p>
+    <p class="mt-2">OCPP 2.0.1 • AI Prediction • Payment Sim • For academic demo only</p>
+  </footer>
+
+  <script>
+    // Mock data (updated with more realistic Coimbatore stations from 2025/26 sources)
+    const stations = [
+      { id:1, name:"Tata Power - Race Course", loc:"Race Course", lat:11.0183, lng:76.9558, avail:4, total:8, type:"DC Fast" },
+      { id:2, name:"VEEV Brookfields Mall", loc:"Brookfields", lat:11.0125, lng:76.9678, avail:2, total:6, type:"AC Level 2" },
+      { id:3, name:"ChargeZone - PSG Tech Area", loc:"Peelamedu", lat:11.0256, lng:77.0023, avail:5, total:10, type:"DC Fast" },
+      { id:4, name:"Zeon Charging - Avinashi Rd", loc:"Avinashi Road", lat:11.0321, lng:76.9789, avail:1, total:4, type:"AC Slow" },
+      { id:5, name:"Ather Grid - Gandhipuram", loc:"Gandhipuram", lat:11.0089, lng:76.9623, avail:0, total:3, type:"AC Level 2" }
+    ];
+
+    let myBookings = [];
+    let currentStation = null;
+
+    function renderStations() {
+      document.getElementById('stations-list').innerHTML = stations.map(s => `
+        <div onclick="selectStation(${s.id})" class="bg-zinc-800 hover:bg-zinc-700 p-6 rounded-3xl cursor-pointer flex justify-between items-center transition">
+          <div>
+            <h4 class="font-bold text-xl">${s.name}</h4>
+            <p class="text-zinc-400">${s.loc} • ${s.type}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-4xl font-bold ${s.avail>0?'text-emerald-400':'text-red-500'}">${s.avail}</div>
+            <div class="text-sm">/ ${s.total} free</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function initMap() {
+      const map = L.map('map').setView([11.0168, 76.9558], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      stations.forEach(s => {
+        L.marker([s.lat, s.lng]).addTo(map)
+          .bindPopup(`<b>${s.name}</b><br>${s.avail}/${s.total} slots • ${s.type}`);
+      });
+    }
+
+    function selectStation(id) {
+      currentStation = stations.find(s => s.id === id);
+      document.getElementById('modal-station').textContent = currentStation.name;
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('booking-modal').classList.add('hidden'); }
+
+    function proceedToPayment() {
+      closeModal();
+      document.getElementById('payment-modal').classList.remove('hidden');
+    }
+
+    function cancelPayment() { document.getElementById('payment-modal').classList.add('hidden'); }
+
+    function completePayment() {
+      document.getElementById('payment-modal').classList.add('hidden');
+      const time = document.getElementById('booking-time').value || new Date().toLocaleString();
+      myBookings.push({ station: currentStation.name, time, status: 'Paid & Confirmed', fee: 25 });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      alert('Payment Successful! Booking Confirmed.\nReceipt: ChargeEase-' + Date.now());
+      renderBookings();
+    }
+
+    function renderBookings() {
+      document.getElementById('bookings-list').innerHTML = myBookings.map((b,i) => `
+        <div class="bg-zinc-800 p-6 rounded-3xl flex justify-between items-center">
+          <div>
+            <p class="font-bold text-lg">${b.station}</p>
+            <p class="text-emerald-400">${b.time}</p>
+            <p class="text-sm text-zinc-400">Paid ₹${b.fee} • ${b.status}</p>
+          </div>
+          <div onclick="showQR(${i})" class="bg-emerald-500 text-black px-8 py-4 rounded-2xl font-bold cursor-pointer">Show QR</div>
+        </div>
+      `).join('');
+    }
+
+    function showQR(idx) {
+      const div = document.createElement('div');
+      div.innerHTML = '<div id="qrcode-temp" class="p-8 bg-white rounded-2xl inline-block"></div>';
+      document.body.appendChild(div);
+      new QRCode("qrcode-temp", "CHARGEASE-BOOKING-" + Date.now() + "-" + idx);
+      setTimeout(() => div.remove(), 10000);
+    }
+
+    function switchView(mode) {
+      document.getElementById('admin-view').classList.toggle('hidden', mode !== 'admin');
+      if (mode === 'admin') {
+        document.getElementById('admin-table').innerHTML = `
+          <tr class="border-b border-zinc-700"><td class="py-6 px-4">Race Course Tata Power</td><td class="py-6 px-4">22</td><td class="py-6 px-4">₹5,850</td><td class="py-6 px-4 text-emerald-400">89%</td></tr>
+          <tr><td class="py-6 px-4">Brookfields VEEV</td><td class="py-6 px-4">15</td><td class="py-6 px-4">₹3,750</td><td class="py-6 px-4 text-emerald-400">92%</td></tr>
+        `;
+      }
+    }
+
+    function showLogin() {
+      alert("Demo Mode • No real login needed!\nUser: demo@chargeease.in • Pass: 1234");
+    }
+
+    // Chart.js AI Prediction Graph
+    const ctx = document.getElementById('demandChart').getContext('2d');
+    const demandChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '12AM'],
+        datasets: [
+          { type: 'bar', label: 'Historical Demand (slots/hour)', data: [8,15,22,28,35,18,10], backgroundColor: '#4f46e5' },
+          { type: 'line', label: 'AI Predicted Demand (RF+ANN)', data: [9,17,25,32,38,20,12], borderColor: '#10b981', borderWidth: 4, tension: 0.4, fill: false }
+        ]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Simulate real-time
+    setInterval(() => {
+      stations.forEach(s => s.avail = Math.max(0, s.avail + Math.floor(Math.random()*3 -1)));
+      renderStations();
+      // Randomly update prediction line
+      demandChart.data.datasets[1].data = demandChart.data.datasets[1].data.map(v => Math.max(5, v + Math.floor(Math.random()*4 -2)));
+      demandChart.update();
+    }, 7000);
+
+    window.onload = () => {
+      renderStations();
+      initMap();
+      renderBookings();
+    };
+  </script>
+</body>
+</html>
