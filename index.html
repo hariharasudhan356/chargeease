@@ -1,177 +1,210 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ChargeEase – Smart EV Charging Platform</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChargeEase – Smart EV Charging Platform</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-
-  <!-- QR + Chart + Confetti -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
-  <style>
-    body { font-family: Inter, system-ui, sans-serif; }
-    #map { height: 420px; }
-  </style>
+<style>
+body { font-family: Inter, system-ui, sans-serif; }
+#map { height: 420px; }
+</style>
 </head>
 
 <body class="bg-zinc-950 text-white">
 
 <!-- NAVBAR -->
-<nav class="fixed top-0 w-full bg-zinc-900/80 backdrop-blur-xl z-[1000] border-b border-zinc-800 shadow-xl">
+<nav class="fixed top-0 w-full bg-zinc-900/80 backdrop-blur-xl z-[1000] border-b border-zinc-800">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-gradient-to-r from-emerald-400 to-green-600 rounded-2xl flex items-center justify-center text-2xl">⚡</div>
-      <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
-        ChargeEase
-      </h1>
+      <div class="w-10 h-10 bg-gradient-to-r from-emerald-400 to-green-600 rounded-2xl flex items-center justify-center text-xl">⚡</div>
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">ChargeEase</h1>
     </div>
-    <button onclick="showToast('Demo Login Successful')" class="bg-gradient-to-r from-emerald-400 to-green-600 px-6 py-3 rounded-2xl font-bold text-black hover:scale-105 transition">
-      Demo Login
-    </button>
+    <div class="flex gap-6">
+      <a href="#stations" class="hover:text-emerald-400">Stations</a>
+      <a href="#ai" class="hover:text-emerald-400">AI Prediction</a>
+      <a href="#admin" class="hover:text-emerald-400">Admin</a>
+    </div>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="min-h-screen pt-32 flex items-center justify-center text-center bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-zinc-950">
   <div>
-    <h2 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-600 bg-clip-text text-transparent animate-pulse">
+    <h2 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-600 bg-clip-text text-transparent">
       ChargeEase
     </h2>
-    <p class="text-2xl text-emerald-400 mb-6">Smart EV Charging Slot Management</p>
-    <p class="text-zinc-400 mb-10">SKCT Entrepreneurship Project • 2026</p>
+    <p class="text-2xl text-emerald-400 mb-10">Smart EV Charging Slot Management Platform</p>
     <a href="#stations" class="bg-emerald-500 text-black px-12 py-6 rounded-3xl font-bold text-xl hover:scale-105 transition">
-      Explore Live Demo
+      Explore Platform
     </a>
   </div>
 </section>
 
-<!-- STATIONS -->
+<!-- STATIONS + MAP -->
 <section id="stations" class="py-20 bg-zinc-900">
-  <div class="max-w-7xl mx-auto px-6">
-    <h2 class="text-5xl font-bold text-center mb-6">Charging Stations – Coimbatore</h2>
-    <p class="text-center text-zinc-400 mb-12">Live availability • Booking • Simulation</p>
-
-    <div class="grid md:grid-cols-2 gap-8">
-      <div id="map" class="rounded-3xl border border-zinc-700"></div>
-      <div id="stations-list" class="space-y-6"></div>
-    </div>
-  </div>
+<div class="max-w-7xl mx-auto px-6">
+<h2 class="text-5xl font-bold text-center mb-10">Live Charging Stations</h2>
+<div class="grid md:grid-cols-2 gap-8">
+  <div id="map" class="rounded-3xl border border-zinc-700"></div>
+  <div id="stations-list" class="space-y-6"></div>
+</div>
+</div>
 </section>
 
-<!-- BOOKING MODAL -->
-<div id="booking-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[20000]">
-  <div class="bg-zinc-900 p-8 rounded-3xl max-w-lg w-full">
-    <h3 class="text-3xl font-bold mb-6">Book at <span id="modal-station"></span></h3>
-    <input type="datetime-local" id="booking-time" class="w-full bg-zinc-800 p-4 rounded-2xl mb-6">
-    <button onclick="proceedToPayment()" class="w-full bg-emerald-500 text-black font-bold py-5 rounded-2xl">
-      Book & Pay ₹25
-    </button>
+<!-- AI DEMAND PREDICTION -->
+<section id="ai" class="py-20 bg-zinc-950">
+<div class="max-w-6xl mx-auto px-6">
+<h2 class="text-5xl font-bold text-center mb-8">AI Demand Prediction</h2>
+<p class="text-center text-zinc-400 mb-10">
+Simulated ML Forecast (Random Forest + Neural Network)
+</p>
+<div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-700">
+  <canvas id="demandChart"></canvas>
+</div>
+</div>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section id="admin" class="py-20 bg-zinc-900">
+<div class="max-w-7xl mx-auto px-6">
+<h2 class="text-5xl font-bold text-center mb-10">Admin Dashboard</h2>
+
+<div class="grid md:grid-cols-3 gap-6 mb-12">
+  <div class="bg-zinc-800 p-6 rounded-3xl text-center">
+    <p class="text-zinc-400">Total Stations</p>
+    <h3 class="text-4xl font-bold text-emerald-400" id="totalStations"></h3>
+  </div>
+  <div class="bg-zinc-800 p-6 rounded-3xl text-center">
+    <p class="text-zinc-400">Active Chargers</p>
+    <h3 class="text-4xl font-bold text-emerald-400" id="activeChargers"></h3>
+  </div>
+  <div class="bg-zinc-800 p-6 rounded-3xl text-center">
+    <p class="text-zinc-400">Bookings Today</p>
+    <h3 class="text-4xl font-bold text-emerald-400">128</h3>
   </div>
 </div>
 
-<!-- PAYMENT -->
-<div id="payment-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[20000]">
-  <div class="bg-zinc-900 p-10 rounded-3xl text-center">
-    <h3 class="text-3xl font-bold text-emerald-400 mb-6">Secure Payment</h3>
-    <button onclick="completePayment()" class="bg-emerald-500 text-black font-bold px-12 py-6 rounded-3xl">
-      Pay ₹25
-    </button>
-  </div>
+<div class="bg-zinc-800 p-6 rounded-3xl">
+<h3 class="text-2xl font-bold mb-4">Station Control Panel</h3>
+<ul id="admin-list" class="space-y-4"></ul>
 </div>
 
-<!-- FOOTER -->
-<footer class="bg-black py-12 text-center text-zinc-500">
-  ChargeEase Prototype • SKCT • 2026
+</div>
+</section>
+
+<footer class="bg-black py-10 text-center text-zinc-500">
+ChargeEase • Smart EV Infrastructure Platform
 </footer>
 
 <script>
 /* DATA */
-const stations = [
-  { id:1, name:"Tata Power – Race Course", lat:11.0183, lng:76.9558, avail:3, total:8 },
-  { id:2, name:"Statiq – Brookfields Mall", lat:11.0125, lng:76.9678, avail:2, total:6 },
-  { id:3, name:"ChargeZone – Lakshmi Mills", lat:11.0123, lng:76.9845, avail:5, total:10 },
-  { id:4, name:"Zeon – Avinashi Road", lat:11.0321, lng:76.9789, avail:1, total:5 },
+let stations = [
+ {id:1,name:"Tata Power – Race Course",lat:11.0183,lng:76.9558,avail:3,total:8},
+ {id:2,name:"Statiq – Brookfields Mall",lat:11.0125,lng:76.9678,avail:2,total:6},
+ {id:3,name:"ChargeZone – Lakshmi Mills",lat:11.0123,lng:76.9845,avail:5,total:10},
+ {id:4,name:"Zeon – Avinashi Road",lat:11.0321,lng:76.9789,avail:1,total:5}
 ];
 
-let currentStation = null;
 let map;
 
 /* MAP */
-function initMap() {
-  map = L.map('map').setView([11.0168, 76.9558], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-  stations.forEach(s => {
-    const icon = L.divIcon({
-      html:`<div class="bg-emerald-500 w-8 h-8 rounded-full flex items-center justify-center">⚡</div>`
-    });
-    L.marker([s.lat, s.lng], { icon }).addTo(map);
-  });
+function initMap(){
+ map=L.map('map').setView([11.0168,76.9558],12);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+ stations.forEach(s=>{
+  const icon=L.divIcon({html:`<div class="bg-emerald-500 w-8 h-8 rounded-full flex items-center justify-center text-black">⚡</div>`});
+  L.marker([s.lat,s.lng],{icon}).addTo(map).bindPopup(s.name);
+ });
 }
 
-/* STATION LIST */
-function renderStations() {
-  document.getElementById("stations-list").innerHTML = stations.map(s => {
-    const pct = (s.avail / s.total) * 100;
-    return `
-    <div onclick="selectStation(${s.id})" class="bg-zinc-800 p-6 rounded-3xl hover:scale-[1.02] transition cursor-pointer">
-      <div class="flex justify-between">
-        <h4 class="text-xl font-bold">${s.name}</h4>
-        <span class="${s.avail>0?'text-emerald-400':'text-red-500'} text-3xl font-bold">${s.avail}</span>
-      </div>
-      <div class="w-full bg-zinc-700 h-2 rounded-full mt-4">
-        <div class="bg-emerald-500 h-2 rounded-full" style="width:${pct}%"></div>
-      </div>
-    </div>`;
-  }).join("");
+/* STATIONS */
+function renderStations(){
+ document.getElementById("stations-list").innerHTML=stations.map(s=>{
+  let p=(s.avail/s.total)*100;
+  return `
+  <div class="bg-zinc-800 p-6 rounded-3xl hover:scale-[1.02] transition">
+    <div class="flex justify-between">
+      <h4 class="text-xl font-bold">${s.name}</h4>
+      <span class="${s.avail>0?'text-emerald-400':'text-red-500'} text-3xl font-bold">${s.avail}</span>
+    </div>
+    <div class="w-full bg-zinc-700 h-2 rounded-full mt-4">
+      <div class="bg-emerald-500 h-2 rounded-full" style="width:${p}%"></div>
+    </div>
+  </div>`;
+ }).join("");
 }
 
-/* BOOKING */
-function selectStation(id){
-  currentStation = stations.find(s=>s.id===id);
-  document.getElementById("modal-station").innerText = currentStation.name;
-  document.getElementById("booking-modal").classList.remove("hidden");
+/* ADMIN */
+function renderAdmin(){
+ document.getElementById("totalStations").innerText=stations.length;
+ document.getElementById("activeChargers").innerText=
+   stations.reduce((a,s)=>a+s.avail,0);
+
+ document.getElementById("admin-list").innerHTML=stations.map(s=>`
+  <li class="flex justify-between items-center bg-zinc-900 p-4 rounded-2xl">
+    <span>${s.name}</span>
+    <button onclick="toggleSlot(${s.id})"
+     class="bg-emerald-500 text-black px-4 py-2 rounded-xl font-bold">
+     Toggle Slot
+    </button>
+  </li>
+ `).join("");
 }
 
-function proceedToPayment(){
-  document.getElementById("booking-modal").classList.add("hidden");
-  document.getElementById("payment-modal").classList.remove("hidden");
+function toggleSlot(id){
+ let s=stations.find(x=>x.id===id);
+ s.avail = s.avail>0 ? s.avail-1 : s.total;
+ renderStations();
+ renderAdmin();
 }
 
-function completePayment(){
-  document.getElementById("payment-modal").classList.add("hidden");
-  confetti({ particleCount:120, spread:70 });
-  showToast("Booking Confirmed 🎉");
-}
-
-/* TOAST */
-function showToast(msg){
-  const t=document.createElement("div");
-  t.className="fixed bottom-10 right-10 bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold z-[50000]";
-  t.innerText=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
+/* AI CHART */
+function initChart(){
+ const ctx=document.getElementById("demandChart");
+ new Chart(ctx,{
+  type:'line',
+  data:{
+   labels:['6AM','9AM','12PM','3PM','6PM','9PM'],
+   datasets:[{
+     label:'Predicted Demand (%)',
+     data:[30,55,70,60,85,50],
+     borderColor:'#34d399',
+     backgroundColor:'rgba(52,211,153,0.2)',
+     tension:0.4,
+     fill:true
+   }]
+  },
+  options:{
+   plugins:{legend:{labels:{color:'white'}}},
+   scales:{
+    x:{ticks:{color:'white'}},
+    y:{ticks:{color:'white'},min:0,max:100}
+   }
+  }
+ });
 }
 
 /* INIT */
 window.onload=()=>{
-  initMap();
+ initMap();
+ renderStations();
+ renderAdmin();
+ initChart();
+
+ setInterval(()=>{
+  stations.forEach(s=>{
+   s.avail=Math.max(0,Math.min(s.total,s.avail+(Math.random()>0.5?1:-1)));
+  });
   renderStations();
-  setInterval(()=>{
-    stations.forEach(s=>{
-      s.avail=Math.max(0,Math.min(s.total,s.avail+(Math.random()>0.5?1:-1)));
-    });
-    renderStations();
-  },10000);
+  renderAdmin();
+ },10000);
 };
 </script>
 
