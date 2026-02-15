@@ -28,26 +28,27 @@ body { font-family: Inter, system-ui, sans-serif; }
     </div>
     <div class="flex gap-6">
       <a href="#stations" class="hover:text-emerald-400">Stations</a>
-      <a href="#ai" class="hover:text-emerald-400">AI Prediction</a>
+      <a href="#ai" class="hover:text-emerald-400">AI</a>
       <a href="#admin" class="hover:text-emerald-400">Admin</a>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="min-h-screen pt-32 flex items-center justify-center text-center bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-zinc-950">
-  <div>
-    <h2 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-600 bg-clip-text text-transparent">
-      ChargeEase
-    </h2>
-    <p class="text-2xl text-emerald-400 mb-10">Smart EV Charging Slot Management Platform</p>
-    <a href="#stations" class="bg-emerald-500 text-black px-12 py-6 rounded-3xl font-bold text-xl hover:scale-105 transition">
-      Explore Platform
-    </a>
-  </div>
+<section class="min-h-screen pt-32 flex items-center justify-center text-center bg-cover bg-center"
+style="background-image:url('https://images.unsplash.com/photo-1615811361523-6bd03d7748e7?auto=format&fit=crop&w=1600&q=80');">
+<div class="bg-black/70 p-16 rounded-3xl">
+  <h2 class="text-6xl font-bold mb-6 bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
+    ChargeEase
+  </h2>
+  <p class="text-2xl text-emerald-400 mb-10">Smart EV Charging Slot Management Platform</p>
+  <a href="#stations" class="bg-emerald-500 text-black px-12 py-6 rounded-3xl font-bold text-xl">
+    Book Charging Slot
+  </a>
+</div>
 </section>
 
-<!-- STATIONS + MAP -->
+<!-- STATIONS -->
 <section id="stations" class="py-20 bg-zinc-900">
 <div class="max-w-7xl mx-auto px-6">
 <h2 class="text-5xl font-bold text-center mb-10">Live Charging Stations</h2>
@@ -58,42 +59,34 @@ body { font-family: Inter, system-ui, sans-serif; }
 </div>
 </section>
 
-<!-- AI DEMAND PREDICTION -->
+<!-- AI -->
 <section id="ai" class="py-20 bg-zinc-950">
 <div class="max-w-6xl mx-auto px-6">
 <h2 class="text-5xl font-bold text-center mb-8">AI Demand Prediction</h2>
-<p class="text-center text-zinc-400 mb-10">
-Simulated ML Forecast (Random Forest + Neural Network)
-</p>
 <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-700">
-  <canvas id="demandChart"></canvas>
+<canvas id="demandChart"></canvas>
 </div>
 </div>
 </section>
 
-<!-- ADMIN DASHBOARD -->
+<!-- ADMIN -->
 <section id="admin" class="py-20 bg-zinc-900">
 <div class="max-w-7xl mx-auto px-6">
 <h2 class="text-5xl font-bold text-center mb-10">Admin Dashboard</h2>
 
 <div class="grid md:grid-cols-3 gap-6 mb-12">
   <div class="bg-zinc-800 p-6 rounded-3xl text-center">
-    <p class="text-zinc-400">Total Stations</p>
-    <h3 class="text-4xl font-bold text-emerald-400" id="totalStations"></h3>
+    <p>Total Stations</p>
+    <h3 class="text-4xl text-emerald-400" id="totalStations"></h3>
   </div>
   <div class="bg-zinc-800 p-6 rounded-3xl text-center">
-    <p class="text-zinc-400">Active Chargers</p>
-    <h3 class="text-4xl font-bold text-emerald-400" id="activeChargers"></h3>
+    <p>Active Chargers</p>
+    <h3 class="text-4xl text-emerald-400" id="activeChargers"></h3>
   </div>
   <div class="bg-zinc-800 p-6 rounded-3xl text-center">
-    <p class="text-zinc-400">Bookings Today</p>
-    <h3 class="text-4xl font-bold text-emerald-400">128</h3>
+    <p>Bookings Today</p>
+    <h3 class="text-4xl text-emerald-400">128</h3>
   </div>
-</div>
-
-<div class="bg-zinc-800 p-6 rounded-3xl">
-<h3 class="text-2xl font-bold mb-4">Station Control Panel</h3>
-<ul id="admin-list" class="space-y-4"></ul>
 </div>
 
 </div>
@@ -103,108 +96,107 @@ Simulated ML Forecast (Random Forest + Neural Network)
 ChargeEase • Smart EV Infrastructure Platform
 </footer>
 
+<!-- PAYMENT MODAL -->
+<div id="paymentModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[2000]">
+<div class="bg-zinc-900 p-8 rounded-3xl w-96 text-center space-y-6">
+<h3 class="text-2xl text-emerald-400 font-bold">Payment</h3>
+<p id="payStation"></p>
+<select class="w-full p-3 rounded-xl bg-zinc-800 text-white">
+<option>UPI</option>
+<option>Debit Card</option>
+<option>Credit Card</option>
+</select>
+<button onclick="confirmPayment()" class="w-full bg-emerald-500 text-black py-3 rounded-xl font-bold">
+Pay ₹250
+</button>
+<button onclick="closeModal()" class="text-zinc-400">Cancel</button>
+</div>
+</div>
+
+<!-- RECEIPT -->
+<div id="receipt" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[3000]">
+<div class="bg-zinc-900 p-10 rounded-3xl text-center space-y-4">
+<h3 class="text-3xl text-emerald-400 font-bold">Payment Successful 🎉</h3>
+<p id="receiptDetails"></p>
+<button onclick="closeReceipt()" class="bg-emerald-500 text-black px-8 py-3 rounded-xl font-bold">
+Close
+</button>
+</div>
+</div>
+
 <script>
-/* DATA */
-let stations = [
- {id:1,name:"Tata Power – Race Course",lat:11.0183,lng:76.9558,avail:3,total:8},
- {id:2,name:"Statiq – Brookfields Mall",lat:11.0125,lng:76.9678,avail:2,total:6},
- {id:3,name:"ChargeZone – Lakshmi Mills",lat:11.0123,lng:76.9845,avail:5,total:10},
- {id:4,name:"Zeon – Avinashi Road",lat:11.0321,lng:76.9789,avail:1,total:5}
+let stations=[
+{id:1,name:"Tata Power – Race Course",lat:11.0183,lng:76.9558,avail:3,total:8},
+{id:2,name:"Statiq – Brookfields Mall",lat:11.0125,lng:76.9678,avail:2,total:6},
+{id:3,name:"ChargeZone – Lakshmi Mills",lat:11.0123,lng:76.9845,avail:5,total:10},
+{id:4,name:"Zeon – Avinashi Road",lat:11.0321,lng:76.9789,avail:1,total:5}
 ];
 
-let map;
+let selectedStation=null;
 
-/* MAP */
 function initMap(){
- map=L.map('map').setView([11.0168,76.9558],12);
- L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
- stations.forEach(s=>{
-  const icon=L.divIcon({html:`<div class="bg-emerald-500 w-8 h-8 rounded-full flex items-center justify-center text-black">⚡</div>`});
-  L.marker([s.lat,s.lng],{icon}).addTo(map).bindPopup(s.name);
- });
+let map=L.map('map').setView([11.0168,76.9558],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+stations.forEach(s=>{
+L.marker([s.lat,s.lng]).addTo(map).bindPopup(s.name);
+});
 }
 
-/* STATIONS */
 function renderStations(){
- document.getElementById("stations-list").innerHTML=stations.map(s=>{
-  let p=(s.avail/s.total)*100;
-  return `
-  <div class="bg-zinc-800 p-6 rounded-3xl hover:scale-[1.02] transition">
-    <div class="flex justify-between">
-      <h4 class="text-xl font-bold">${s.name}</h4>
-      <span class="${s.avail>0?'text-emerald-400':'text-red-500'} text-3xl font-bold">${s.avail}</span>
-    </div>
-    <div class="w-full bg-zinc-700 h-2 rounded-full mt-4">
-      <div class="bg-emerald-500 h-2 rounded-full" style="width:${p}%"></div>
-    </div>
-  </div>`;
- }).join("");
+document.getElementById("stations-list").innerHTML=stations.map(s=>`
+<div class="bg-zinc-800 p-6 rounded-3xl space-y-4">
+<h4 class="text-xl font-bold">${s.name}</h4>
+<p>Available Slots: <span class="text-emerald-400">${s.avail}</span></p>
+<button onclick="buySlot(${s.id})"
+class="w-full bg-emerald-500 text-black py-3 rounded-xl font-bold"
+${s.avail===0?'disabled':''}>Buy Slot ₹250</button>
+</div>`).join("");
 }
 
-/* ADMIN */
 function renderAdmin(){
- document.getElementById("totalStations").innerText=stations.length;
- document.getElementById("activeChargers").innerText=
-   stations.reduce((a,s)=>a+s.avail,0);
-
- document.getElementById("admin-list").innerHTML=stations.map(s=>`
-  <li class="flex justify-between items-center bg-zinc-900 p-4 rounded-2xl">
-    <span>${s.name}</span>
-    <button onclick="toggleSlot(${s.id})"
-     class="bg-emerald-500 text-black px-4 py-2 rounded-xl font-bold">
-     Toggle Slot
-    </button>
-  </li>
- `).join("");
+document.getElementById("totalStations").innerText=stations.length;
+document.getElementById("activeChargers").innerText=
+stations.reduce((a,s)=>a+s.avail,0);
 }
 
-function toggleSlot(id){
- let s=stations.find(x=>x.id===id);
- s.avail = s.avail>0 ? s.avail-1 : s.total;
- renderStations();
- renderAdmin();
+function buySlot(id){
+selectedStation=stations.find(s=>s.id===id);
+document.getElementById("payStation").innerText=selectedStation.name;
+document.getElementById("paymentModal").classList.remove("hidden");
 }
 
-/* AI CHART */
+function closeModal(){
+document.getElementById("paymentModal").classList.add("hidden");
+}
+
+function confirmPayment(){
+selectedStation.avail--;
+closeModal();
+document.getElementById("receiptDetails").innerHTML=
+`Station: ${selectedStation.name}<br>Amount: ₹250<br>ID: EV${Math.floor(Math.random()*100000)}`;
+document.getElementById("receipt").classList.remove("hidden");
+renderStations();renderAdmin();
+confetti({particleCount:150,spread:80});
+}
+
+function closeReceipt(){
+document.getElementById("receipt").classList.add("hidden");
+}
+
 function initChart(){
- const ctx=document.getElementById("demandChart");
- new Chart(ctx,{
-  type:'line',
-  data:{
-   labels:['6AM','9AM','12PM','3PM','6PM','9PM'],
-   datasets:[{
-     label:'Predicted Demand (%)',
-     data:[30,55,70,60,85,50],
-     borderColor:'#34d399',
-     backgroundColor:'rgba(52,211,153,0.2)',
-     tension:0.4,
-     fill:true
-   }]
-  },
-  options:{
-   plugins:{legend:{labels:{color:'white'}}},
-   scales:{
-    x:{ticks:{color:'white'}},
-    y:{ticks:{color:'white'},min:0,max:100}
-   }
-  }
- });
+new Chart(document.getElementById("demandChart"),{
+type:'line',
+data:{labels:['6AM','9AM','12PM','3PM','6PM','9PM'],
+datasets:[{label:'Demand %',data:[30,55,70,60,85,50],
+borderColor:'#34d399',fill:true}]}
+});
 }
 
-/* INIT */
 window.onload=()=>{
- initMap();
- renderStations();
- renderAdmin();
- initChart();
-
- setInterval(()=>{
-  stations.forEach(s=>{
-   s.avail=Math.max(0,Math.min(s.total,s.avail+(Math.random()>0.5?1:-1)));
-  });
-  renderStations();
-  renderAdmin();
- },10000);
+initMap();
+renderStations();
+renderAdmin();
+initChart();
 };
 </script>
 
