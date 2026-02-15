@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChargeEase – Smart EV Charging Platform</title>
+<title>Zolt – Smart EV Charging Slot Management Platform</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
@@ -26,30 +26,28 @@ body { font-family: Inter, system-ui, sans-serif; }
 <nav class="fixed top-0 w-full bg-zinc-900/90 backdrop-blur-xl z-[1000] border-b border-zinc-800">
   <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 bg-gradient-to-r from-emerald-400 to-green-600 rounded-xl flex items-center justify-center text-sm">⚡</div>
-      <h1 class="text-xl md:text-2xl font-bold text-emerald-400">ChargeEase</h1>
+      <div class="w-8 h-8 bg-gradient-to-r from-emerald-400 to-green-600 rounded-xl flex items-center justify-center">⚡</div>
+      <h1 class="text-xl md:text-2xl font-bold text-emerald-400">Zolt</h1>
     </div>
     <div class="hidden md:flex gap-6 text-sm">
       <a href="#stations" class="hover:text-emerald-400">Stations</a>
-      <a href="#ai" class="hover:text-emerald-400">AI</a>
+      <a href="#ai" class="hover:text-emerald-400">AI Prediction</a>
       <a href="#admin" class="hover:text-emerald-400">Admin</a>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="min-h-screen flex items-center justify-center text-center bg-cover bg-center px-4"
+<section class="min-h-screen flex items-center justify-center text-center px-4"
 style="background-image:url('https://images.unsplash.com/photo-1606229365485-93a3b8ee0383?auto=format&fit=crop&w=1600&q=80');">
-<div class="bg-black/75 p-8 md:p-16 rounded-3xl w-full max-w-2xl mt-20">
-  <h2 class="text-4xl md:text-6xl font-bold mb-4 text-emerald-400">
-    ChargeEase
-  </h2>
+<div class="bg-black/75 p-10 rounded-3xl w-full max-w-2xl mt-20">
+  <h2 class="text-4xl md:text-6xl font-bold mb-4 text-emerald-400">Zolt</h2>
   <p class="text-lg md:text-xl text-zinc-300 mb-8">
-    Smart EV Charging Slot Management Platform
+    AI-Powered EV Charging Slot Management Platform
   </p>
   <a href="#stations"
-     class="block w-full md:w-auto bg-emerald-500 text-black px-8 py-4 rounded-2xl font-bold text-lg">
-     Book Charging Slot
+     class="bg-emerald-500 text-black px-8 py-4 rounded-2xl font-bold text-lg inline-block">
+     Reserve Charging Slot
   </a>
 </div>
 </section>
@@ -69,8 +67,10 @@ style="background-image:url('https://images.unsplash.com/photo-1606229365485-93a
 <!-- AI -->
 <section id="ai" class="py-16 bg-zinc-950 px-4">
 <div class="max-w-5xl mx-auto">
-<h2 class="text-3xl md:text-5xl font-bold text-center mb-8">AI Demand Prediction</h2>
-<div class="bg-zinc-900 p-6 md:p-10 rounded-3xl border border-zinc-700">
+<h2 class="text-3xl md:text-5xl font-bold text-center mb-8">
+AI Demand & Availability Forecasting
+</h2>
+<div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-700">
 <canvas id="demandChart"></canvas>
 </div>
 </div>
@@ -79,7 +79,9 @@ style="background-image:url('https://images.unsplash.com/photo-1606229365485-93a
 <!-- ADMIN -->
 <section id="admin" class="py-16 bg-zinc-900 px-4">
 <div class="max-w-6xl mx-auto">
-<h2 class="text-3xl md:text-5xl font-bold text-center mb-10">Admin Dashboard</h2>
+<h2 class="text-3xl md:text-5xl font-bold text-center mb-10">
+Admin Dashboard
+</h2>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
   <div class="bg-zinc-800 p-6 rounded-3xl text-center">
@@ -87,7 +89,7 @@ style="background-image:url('https://images.unsplash.com/photo-1606229365485-93a
     <h3 class="text-3xl text-emerald-400" id="totalStations"></h3>
   </div>
   <div class="bg-zinc-800 p-6 rounded-3xl text-center">
-    <p>Active Chargers</p>
+    <p>Available Chargers</p>
     <h3 class="text-3xl text-emerald-400" id="activeChargers"></h3>
   </div>
   <div class="bg-zinc-800 p-6 rounded-3xl text-center">
@@ -100,13 +102,13 @@ style="background-image:url('https://images.unsplash.com/photo-1606229365485-93a
 </section>
 
 <footer class="bg-black py-6 text-center text-sm text-zinc-500">
-ChargeEase • Smart EV Infrastructure Platform
+Zolt • Smart EV Infrastructure Platform • SKCT EEE
 </footer>
 
 <!-- PAYMENT MODAL -->
 <div id="paymentModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[2000] px-4">
-<div class="bg-zinc-900 p-6 md:p-8 rounded-3xl w-full max-w-sm text-center space-y-6">
-<h3 class="text-xl md:text-2xl text-emerald-400 font-bold">Payment</h3>
+<div class="bg-zinc-900 p-8 rounded-3xl w-full max-w-sm text-center space-y-6">
+<h3 class="text-2xl text-emerald-400 font-bold">Slot Reservation</h3>
 <p id="payStation"></p>
 <select class="w-full p-3 rounded-xl bg-zinc-800 text-white">
 <option>UPI</option>
@@ -114,7 +116,7 @@ ChargeEase • Smart EV Infrastructure Platform
 <option>Credit Card</option>
 </select>
 <button onclick="confirmPayment()" class="w-full bg-emerald-500 text-black py-3 rounded-xl font-bold">
-Pay ₹250
+Pay ₹30
 </button>
 <button onclick="closeModal()" class="text-zinc-400 text-sm">Cancel</button>
 </div>
@@ -123,7 +125,7 @@ Pay ₹250
 <!-- RECEIPT -->
 <div id="receipt" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[3000] px-4">
 <div class="bg-zinc-900 p-8 rounded-3xl text-center space-y-4 w-full max-w-sm">
-<h3 class="text-2xl text-emerald-400 font-bold">Payment Successful 🎉</h3>
+<h3 class="text-2xl text-emerald-400 font-bold">Booking Confirmed ✅</h3>
 <p id="receiptDetails"></p>
 <button onclick="closeReceipt()" class="bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold w-full">
 Close
@@ -133,10 +135,10 @@ Close
 
 <script>
 let stations=[
-{id:1,name:"Tata Power – Race Course",lat:11.0183,lng:76.9558,avail:3,total:8},
-{id:2,name:"Statiq – Brookfields Mall",lat:11.0125,lng:76.9678,avail:2,total:6},
-{id:3,name:"ChargeZone – Lakshmi Mills",lat:11.0123,lng:76.9845,avail:5,total:10},
-{id:4,name:"Zeon – Avinashi Road",lat:11.0321,lng:76.9789,avail:1,total:5}
+{id:1,name:"Public EV Hub – Race Course",lat:11.0183,lng:76.9558,avail:3,total:8},
+{id:2,name:"Mall EV Station – Brookfields",lat:11.0125,lng:76.9678,avail:2,total:6},
+{id:3,name:"Industrial EV Park – Lakshmi Mills",lat:11.0123,lng:76.9845,avail:5,total:10},
+{id:4,name:"Highway Fast Chargers – Avinashi Rd",lat:11.0321,lng:76.9789,avail:1,total:5}
 ];
 
 let selectedStation=null;
@@ -156,7 +158,7 @@ document.getElementById("stations-list").innerHTML=stations.map(s=>`
 <p>Available Slots: <span class="text-emerald-400">${s.avail}</span></p>
 <button onclick="buySlot(${s.id})"
 class="w-full bg-emerald-500 text-black py-3 rounded-xl font-bold"
-${s.avail===0?'disabled':''}>Buy Slot ₹250</button>
+${s.avail===0?'disabled':''}>Reserve Slot ₹30</button>
 </div>`).join("");
 }
 
@@ -180,10 +182,13 @@ function confirmPayment(){
 selectedStation.avail--;
 closeModal();
 document.getElementById("receiptDetails").innerHTML=
-`Station: ${selectedStation.name}<br>Amount: ₹250<br>ID: EV${Math.floor(Math.random()*100000)}<br>${new Date().toLocaleString()}`;
+`Station: ${selectedStation.name}<br>
+Amount: ₹30<br>
+Booking ID: ZOLT${Math.floor(Math.random()*100000)}<br>
+${new Date().toLocaleString()}`;
 document.getElementById("receipt").classList.remove("hidden");
 renderStations();renderAdmin();
-confetti({particleCount:150,spread:80});
+confetti({particleCount:120,spread:80});
 }
 
 function closeReceipt(){
@@ -193,9 +198,16 @@ document.getElementById("receipt").classList.add("hidden");
 function initChart(){
 new Chart(document.getElementById("demandChart"),{
 type:'line',
-data:{labels:['6AM','9AM','12PM','3PM','6PM','9PM'],
-datasets:[{label:'Demand %',data:[30,55,70,60,85,50],
-borderColor:'#34d399',fill:true}]}
+data:{
+labels:['6AM','9AM','12PM','3PM','6PM','9PM'],
+datasets:[{
+label:'Predicted Demand %',
+data:[35,60,75,65,90,55],
+borderColor:'#34d399',
+backgroundColor:'rgba(52,211,153,0.2)',
+fill:true
+}]
+}
 });
 }
 
