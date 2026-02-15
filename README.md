@@ -1,2 +1,2 @@
-# chargeease
-ChargeEase – Smart EV Charging Platform
+# Zolt
+zolt – Smart EV Charging Platform
